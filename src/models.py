@@ -1,8 +1,16 @@
 """Shared data models for the collaborative discussion system."""
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict, List
 import json
+
+
+class InterventionType(Enum):
+    """Types of agent interventions in discussions."""
+    COMPROMISE = "compromise"
+    SOCRATIC_QUESTIONING = "socratic"
+    NO_INTERVENTION = "no_intervention"
 
 
 @dataclass

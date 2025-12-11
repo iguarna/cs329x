@@ -2,7 +2,7 @@
 
 import json
 import re
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 from src import models
 
@@ -47,3 +47,19 @@ def save_dataset_to_jsonl(entries: Iterable[models.ConflictContext], path: str) 
         for entry in entries:
             handle.write(entry.to_json())
             handle.write('\n')
+
+def load_dataset_from_jsonl(path: str) -> List[models.ConflictContext]:
+    """Load dataset entries from a JSONL file."""
+    dataset = []
+    with open(path, "r", encoding="utf-8") as handle:
+        for line in handle:
+            data = json.loads(line)
+            comment_thread = [models.CommentTurn(speaker=c['speaker'], text=c['text']) for c in data['comment_thread']]
+            entry = models.ConflictContext(
+                topic=data['topic'],
+                document=data['document'],
+                highlighted_sentence=data['highlighted_sentence'],
+                comment_thread=comment_thread
+            )
+            dataset.append(entry)
+    return dataset
