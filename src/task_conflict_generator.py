@@ -1,7 +1,6 @@
 """Core functionality for generating synthetic documents and comment threads."""
 
 import textwrap
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
 from src import llms, models, utils
 
@@ -213,26 +212,6 @@ def generate_conflict_context(
         comment_thread=comment_thread,
     )
 
-
-def generate_conflict_context_dataset(llm: llms.BaseLLMClient, size: int) -> List[models.ConflictContext]:
-    """Generate multiple dataset entries in parallel.
-
-    Args:
-        llm: The LLM client to use for generation
-        size: Number of entries to generate
-
-    Returns:
-        List of generated dataset entries
-    """
-    def generate_single_entry(index: int) -> models.ConflictContext:
-        """Helper function to generate a single entry with its index."""
-        return generate_conflict_context(llm, selected_topic=_TOPICS[index % len(_TOPICS)])
-
-    samples: List[models.ConflictContext] = []
-
-    with ThreadPoolExecutor() as executor:
-        future_to_index = {executor.submit(generate_single_entry, i): i for i in range(size)}
-        for future in as_completed(future_to_index):
-            samples.append(future.result())
-
-    return samples
+def get_topic_for_index(index: int) -> str:
+    """Returns the correspoinding topic for the index number. """
+    return _TOPICS[index % len(_TOPICS)]
