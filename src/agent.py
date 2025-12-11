@@ -1,6 +1,7 @@
 """Core functionality for generating agent interventions in discussions."""
 
 import textwrap
+from typing import List
 from src import llms, models, utils
 
 _AGENT_INTERVENTION_PROMPT_TEMPLATE = textwrap.dedent(
@@ -69,6 +70,21 @@ You must output a single valid JSON object. Do not include markdown formatting (
 }
 """.strip()
 
+def build_prompt(
+    document: str,
+    highlighted_sentence: str,
+    comment_thread: List[models.CommentTurn],
+    intervention_instruction: str,
+    use_chain_of_thought: bool
+) -> str:
+    return _AGENT_INTERVENTION_PROMPT_TEMPLATE.format(
+        document=document,
+        highlighted_sentence=highlighted_sentence,
+        thread=utils.format_thread_for_prompt(comment_thread),
+        intervention_instruction=intervention_instruction,
+        output_format=_AGENT_OUTPUT_JSON if use_chain_of_thought else _AGENT_OUTPUT_PLAIN_TEXT
+    )
+
 def generate_single_intervention(
     llm: llms.BaseLLMClient,
     context: models.ConflictContext,
@@ -104,12 +120,11 @@ def generate_single_intervention(
     else:
         intervention_instruction = ""
 
-    prompt = _AGENT_INTERVENTION_PROMPT_TEMPLATE.format(
+    prompt = build_prompt(
         document=context.document,
         highlighted_sentence=context.highlighted_sentence,
-        thread=utils.format_thread_for_prompt(partial_thread),
+        thread=partial_thread,
         intervention_instruction=intervention_instruction,
-        output_format=output_format
-    )
+        use_chain_of_thought=chain_of_thought)
 
     return llm.complete(prompt).strip()
