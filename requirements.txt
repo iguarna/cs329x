@@ -1,1 +1,11 @@
 openai
+pandas
+matplotlib
+torch
+transformers
+accelerate
+bitsandbytes
+trl
+peft
+datasets
+seaborn
