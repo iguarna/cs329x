@@ -11,6 +11,7 @@ class InterventionType(Enum):
     COMPROMISE = "compromise"
     SOCRATIC_QUESTIONING = "socratic"
     NO_INTERVENTION = "no_intervention"
+    ANY = ""
 
 
 @dataclass
